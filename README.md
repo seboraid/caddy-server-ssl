@@ -18,8 +18,8 @@ sudo su -
 go get -u github.com/caddyserver/xcaddy/cmd/xcaddy
 cd go/bin/
 # ./xcaddy list-modules
-#go list -m
-#go mod init
+go list -m
+go mod init
 ./xcaddy build --with github.com/caddy-dns/cloudflare --with github.com/gamalan/caddy-tlsredis
 sudo mv caddy /usr/bin/
 caddy list-modules | grep redis
@@ -35,16 +35,17 @@ sudo useradd --system --gid caddy --create-home --home-dir /var/lib/caddy --shel
 ```
 git clone https://github.com/seboraid/caddy-server-ssl.git
 sudo mkdir /etc/caddy
-
-git fetch
+sudo cp caddy-server-ssl/config.json /etc/caddy/
 ```
 
 Test Caddy
 ```
-./caddy run --environ --config /etc/caddy/config.json
+caddy run --environ --config /etc/caddy/config.json
 ```
 
 ## Install Caddy as Service
+`sudo vim /etc/systemd/system/caddy.service`
+
 ```
 [Unit]
 Description=Caddy
@@ -67,18 +68,26 @@ AmbientCapabilities=CAP_NET_BIND_SERVICE
 WantedBy=multi-user.target
 ```
 
+`sudo systemctl enable caddy`
+
+
 ## Install PHP and FPM-PHP
 ```
 sudo amazon-linux-extras install -y php7.2
 sudo yum install -y php-fpm
-chkconfig --add php-fpm
-chkconfig php-fpm on
-systemctl enable caddy
+sudo systemctl enable php-fpm
+sudo systemctl restart php-fpm
 ```
 
 ## Configure PHP-FPM
+`sudo vim /etc/php-fpm.conf`
 
-`vim /etc/php-fpm.d/www.conf`
+```
+# uncommnet the line
+pid = /run/php-fpm/php-fpm.pid
+```
+
+`sudo vim /etc/php-fpm.d/www.conf`
 
 ```
 listen = /var/php.sock
@@ -89,9 +98,12 @@ listen.mode = 0666
 user = caddy
 group = caddy
 
-php_admin_value[error_log] = /var/log/php-fpm/www-error.log
-php_admin_flag[log_errors] = on
+#comment
+; listen.acl_users
+; listen.allowed_clients
 ```
+
+`chown caddy /var/log/php-fpm/`
 
 ## Move delegation PHP file
 ```

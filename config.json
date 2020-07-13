@@ -27,13 +27,11 @@
 		}
     },
     "storage": {
-		"address": "sessions-and-cache.skfcuu.clustercfg.usw2.cache.amazonaws.com:6379",
+		"address": "sesion-tls.skfcuu.0001.usw2.cache.amazonaws.com:6379",
 		"aes_key": "redistls-01234567890-caddytls-32",
-		"db": 1,
-		"host": "sessions-and-cache.skfcuu.clustercfg.usw2.cache.amazonaws.com",
+		"host": "sesion-tls.skfcuu.0001.usw2.cache.amazonaws.com",
 		"key_prefix": "caddytls",
 		"module": "redis",
-		"password": "",
 		"port": "6379",
 		"timeout": 5,
 		"tls_enabled": false,
@@ -80,124 +78,120 @@
 			"https_port": 443,
 			"servers": {
 				"tiendas": {
-					"@id": "vendtycerts",
 					"listen": [":80",":443"],
 					"max_header_bytes": 41943040,
-					"routes": [
-						{
-							"@id": "guicanaveral",
-							"match": [{
-								"host": ["guiacanaveral.com"]
-							}],
-							"handle": [{
-								"handler": "encode",
-								"encodings": {
-								  "gzip": {},
-								  "zstd": {}
-								}
-							  },
-							  {
-								"handler": "reverse_proxy",
-								"upstreams": [{
-									"dial": "172.31.53.124:80"
-								}]
-							}]
-						},
-						{
-                                                        "@id": "guicanaveral",
-                                                        "match": [{
-                                                                "host": ["admintienda.guiacanaveral.com"]
-                                                        }],
-                                                        "handle": [{
-                                                                "handler": "encode",
-                                                                "encodings": {
-                                                                  "gzip": {},
-                                                                  "zstd": {}
-                                                                }
-                                                          },
-                                                          {
-                                                                "handler": "reverse_proxy",
-                                                                "upstreams": [{
-                                                                        "dial": "172.31.60.234:80"
-                                                                }]
-                                                        }]
-                                                },
-						{
-                                                        "@id": "guicanaveral",
-                                                        "match": [{
-                                                                "host": ["api.guiacanaveral.com"]
-                                                        }],
-                                                        "handle": [{
-                                                                "handler": "encode",
-                                                                "encodings": {
-                                                                  "gzip": {},
-                                                                  "zstd": {}
-                                                                }
-                                                          },
-                                                          {
-                                                                "handler": "reverse_proxy",
-                                                                "upstreams": [{
-                                                                        "dial": "172.31.63.108:80"
-                                                                }]
-                                                        }]
-                                                },
-						{
-						"@id": "certs",
-						"group": "grupo1",
-						"match": [{
-							"host": ["certs.vendty.com"]
-						}],
-						"handle": [{
-							"handler": "reverse_proxy",
-							"transport": {
-								"protocol": "fastcgi",
-								"root": "/var/www/html/"
-							},
-							"upstreams": [{
-								"dial": "unix//var/php.sock"
-							}]
-						}],
-						"terminal": true
-					},
-					{
-						"@id": "subdominiosvendty",
-						"group": "grupo1",
-						"match": [{
-							"host": ["*.vendty.com"]
-						}],
-						"handle": [{
-							"handler": "encode",
-							"encodings": {
-							  "gzip": {},
-							  "zstd": {}
-							}
-						  },
-						  {
-							"handler": "reverse_proxy",
-							"upstreams": [{
-								"dial": "172.31.4.60:80"
-							}]
-						}],
-						"terminal": true
-					},
-					{
-						"@id": "dominios",
-						"group": "grupo1",
-						"handle": [{
-								"handler": "encode",
-								"encodings": {
-								  "gzip": {},
-								  "zstd": {}
-								}
-							},
-							{
-							"handler": "reverse_proxy",
-							"upstreams": [{
-								"dial": "172.31.4.60:80"
-							}]
-						}],
-						"terminal": true
-					}]
+					"routes": [{
+                        "match": [{
+                            "host": ["guiacanaveral.com"]
+                        }],
+                        "handle": [{
+                            "handler": "encode",
+                            "encodings": {
+                                "gzip": {},
+                                "zstd": {}
+                            }
+                            },
+                            {
+                            "handler": "reverse_proxy",
+                            "upstreams": [{
+                                "dial": "172.31.53.124:80"
+                            }]
+                        }]
+                    },
+                    {
+                        "match": [{
+                                "host": ["admintienda.guiacanaveral.com"]
+                        }],
+                        "handle": [{
+                                "handler": "encode",
+                                "encodings": {
+                                    "gzip": {},
+                                    "zstd": {}
+                                }
+                            },
+                            {
+                                "handler": "reverse_proxy",
+                                "upstreams": [{
+                                        "dial": "172.31.60.234:80"
+                                }]
+                        }]
+                    },
+                    {
+                        "match": [{
+                                "host": ["api.guiacanaveral.com"]
+                        }],
+                        "handle": [{
+                            "handler": "encode",
+                            "encodings": {
+                                "gzip": {},
+                                "zstd": {}
+                            }
+                        },
+                        {
+                            "handler": "reverse_proxy",
+                            "upstreams": [{
+                                    "dial": "172.31.63.108:80"
+                            }]
+                        }]
+                    },
+                    {
+                        "group": "grupo1",
+                        "automatic_https": {
+                            "disable_redirects": true
+                        },
+                        "match": [{
+                            "host": ["certs.guiacanaveral.com"]
+                        }],
+                        "handle": [{
+                            "handler": "reverse_proxy",
+                            "transport": {
+                                "protocol": "fastcgi",
+                                "split_path": [".php"],
+                                "root": "/var/www/html/"
+                            },
+                            "upstreams": [{
+                                "dial": "unix//var/run/php.sock"
+                            }]
+                        }],
+                        "terminal": true
+                    },
+                    {
+                        "group": "grupo1",
+                        "match": [{
+                            "host": ["*.vendty.com"]
+                        }],
+                        "handle": [{
+                            "handler": "encode",
+                            "encodings": {
+                            "gzip": {},
+                            "zstd": {}
+                            }
+                        },
+                        {
+                            "handler": "reverse_proxy",
+                            "upstreams": [{
+                                "dial": "172.31.4.60:80"
+                            }]
+                        }],
+                        "terminal": true
+                    },
+                    {
+                        "group": "grupo1",
+                        "handle": [{
+                            "handler": "encode",
+                            "encodings": {
+                            "gzip": {},
+                            "zstd": {}
+                            }
+                        },
+                        {
+                            "handler": "reverse_proxy",
+                            "upstreams": [{
+                                "dial": "172.31.4.60:80"
+                            }]
+                        }],
+                        "terminal": true
+                    }]
 				}
 			}
 		}
