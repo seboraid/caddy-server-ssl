@@ -136,9 +136,6 @@
                     },
                     {
                         "group": "grupo1",
-                        "automatic_https": {
-                            "disable_redirects": true
-                        },
                         "match": [{
                             "host": ["certs.guiacanaveral.com"]
                         }],
